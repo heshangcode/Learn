@@ -20,6 +20,7 @@
 <script type="text/javascript" src="resource/jquery.js"></script>
 <script type="text/javascript">
     $(function () {
+
         //元素选择器
         $("button").click(function () {
             //1.获取上传文件的对象，是数组，获取的第一个

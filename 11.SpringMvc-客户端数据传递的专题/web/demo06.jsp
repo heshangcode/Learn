@@ -13,6 +13,7 @@
 <body>
 <script type="text/javascript">
 	//给对象赋值的几种方 式
+    //javascript中，var 对象 = {}大括号，数组[]
     var obj = {
         user_name: "悟空",
         sex: "男",
