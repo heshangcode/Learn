@@ -1,0 +1,43 @@
+<?xml version="1.0" encoding="UTF-8"?>
+<!DOCTYPE mapper
+		PUBLIC "-//mybatis.org//DTD Mapper 3.0//EN"
+		"http://mybatis.org/dtd/mybatis-3-mapper.dtd">
+<!--namespace=命名空间，唯一不重复-->
+<mapper namespace="com.hs.dao.SkillDao">  <!--命名空间规则
+传统模式：（持久化类（实体化Bean）的类名全路径com.hs.Skill）
+接口代理模式：接口的全路径-->
+
+	<resultMap id="BaseResultMap" type="com.hs.model.Skill">
+		<id column="skill_id" property="skillid"/>    <!--若有主键，主键用id标签，其余用result标签-->
+		<result column="skill_name" property="skillname"/>
+		<result column="num" property="num"/>
+	</resultMap>
+
+	<!--1.模糊条件查询是固定的，写死在sql语句里了-->
+	<select id="getSkillLike01" resultMap="BaseResultMap">
+		select skill_id,skill_name,num from skill where skill_name like '%s%'
+	</select>
+
+	<!--2.模糊条件是一个简单的数据类型
+		当你传递的为一个简单的数据类型，那么我们可以通过#{任意写}进行传值，  #{xx}是一种预处理模式，先sql语句里是？
+		然后接收到值了，再写进去,会给你默认加   '',即为'#{}'
+	-->
+		<!--A、通过java代码拼接字符串-->
+	<select id="getSkillLike02" parameterType="string" resultMap="BaseResultMap">
+		select skill_id,skill_name,num from skill where skill_name like #{name}
+	</select>
+		<!--B、通过SQL语句函数拼接字符串 concat函数指字符串拼接，-->
+	<select id="getSkillLike03" parameterType="string" resultMap="BaseResultMap">
+		select skill_id,skill_name,num from skill where skill_name like concat('%',#{name},'%')
+	</select>
+		<!--C、通过${}完成模糊查询！！！但是不太推荐，${}不会默认加 '' ，也不是预处理模式，是直接在把值写在了sql语句中，
+			一般用于order by ${key或者属性},一般只接受map或者对象
+		-->
+	<select id="getSkillLike04" parameterType="map" resultMap="BaseResultMap">
+		select skill_id,skill_name,num from skill where skill_name like concat('%','${name}','%')
+	</select>
+	<!--${}的应用，排序-->
+	<select id="getSkillLike05" parameterType="map" resultMap="BaseResultMap">
+		select * from skill order by skill_id ${fs}
+	</select>
+</mapper>

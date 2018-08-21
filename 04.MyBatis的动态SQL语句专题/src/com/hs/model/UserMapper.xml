@@ -1,0 +1,200 @@
+<?xml version="1.0" encoding="UTF-8"?>
+<!DOCTYPE mapper
+		PUBLIC "-//mybatis.org//DTD Mapper 3.0//EN"
+		"http://mybatis.org/dtd/mybatis-3-mapper.dtd">
+<!--namespace=命名空间，唯一不重复-->
+<mapper namespace="com.hs.dao.UserDao"><!--命名空间规则
+传统模式：（持久化类（实体化Bean）的类名全路径com.hs.Skill）
+接口代理模式：接口的全路径r-->
+	<!--见帮助文档http://www.mybatis.org/mybatis-3/zh/dynamic-sql.html-->
+	<resultMap id="BaseResultMap" type="com.hs.model.User">
+		<id column="user_id" property="user_id"/>
+		<result column="user_name" property="user_name"/>
+		<result column="sex" property="sex"/>
+		<result column="money" property="money"/>
+		<result column="birthday" property="birthday"/>
+	</resultMap>
+	<!--提取公共的SQL代码-->
+	<sql id="oa_user_columns">
+		user_id,user_name,sex,money,birthday
+	</sql>
+	<!--别名方式的SQL代码-->
+	<sql id="oa_user_columns_alias">
+		${alias}.user_id,${alias}.user_name,${alias}.sex,${alias}.money,${alias}.birthday
+	</sql>
+	<!-- A.通过恒等式完成动态SQL语句 -->
+	<select id="getUserListIf01" parameterType="map" resultMap="BaseResultMap">
+		select
+		<include refid="oa_user_columns"/>
+		from
+		oa_user
+		where 1=1  <!-- 恒等式 ，但是影响效率-->
+		<if test="name != null &amp;&amp; name != ''">
+			and user_name like concat('%',#{name},'%')
+		</if>
+		<if test="sex != null and sex != ''">
+			and sex = #{sex}
+		</if>          <!-- 这个if里没有&&,只有&amp;&amp;或者and表示，||也只有or表示-->
+	</select>
+	<!-- B.通过where标签完成动态SQL语句，没有1=1 -->
+	<select id="getUserListIf02" parameterType="map" resultMap="BaseResultMap">
+		select
+		<include refid="oa_user_columns"/>
+		from
+		oa_user
+		<where>
+			<if test="name != null &amp;&amp; name != ''">
+				and user_name like concat('%',#{name},'%')
+			</if>
+			<if test="sex != null and sex != ''">
+				and sex = #{sex}
+			</if>          <!-- 这个if里没有&&,只有&amp;&amp;或者and表示，||也只有or表示-->
+		</where>
+	</select>
+	<!-- C.trim标签实现<trim
+	 prefix="当发现有内容的时候,你在内容的最前面想加入什么内容"
+	 prefixOverrides="当发现有内容的时候,你在内容的最前面想抹掉什么内容"
+	 suffix="当发现有内容的时候,你在内容的最后面面想加入什么内容"
+	 suffixOverrides="当发现有内容的时候,你在内容的最后面想抹掉什么内容" -->
+	<select id="getUserListIf03" parameterType="map" resultMap="BaseResultMap">
+		select
+		<include refid="oa_user_columns"/>
+		from
+		oa_user
+		<trim prefix="where " prefixOverrides="and || or">
+			<if test="name != null &amp;&amp; name != ''">
+				and user_name like concat('%',#{name},'%')
+			</if>
+			<if test="sex != null and sex != ''">
+				and sex = #{sex}
+			</if>          <!-- 见xml转义字符 这个if里没有&&,只有&amp;&amp;或者and表示，||也只有or表示-->
+		</trim>
+	</select>
+
+	<!--利用set标签
+	当你发现有内容的时候,在内容的最前面加入 set
+	当你发现有内容的时候,检查内容的最后面是否有逗号"," 如果有将其抹掉
+    -->
+	<update id="updateUser01ByPk" parameterType="com.hs.model.User">
+		update oa_user
+		<set>
+			<if test="user_name !=null and user_name != ''">
+				user_name = #{user_name},
+			</if>
+			<if test="sex !=null and sex != ''">
+				sex = #{sex},
+			</if>
+			<if test="money != null"> <!--不是字符串就不要判断是否为空 ='' -->
+				money = #{money},
+			</if>
+		</set>
+		where user_id = #{user_id}
+	</update>
+
+	<!--利用trim标签，，，，但是不推荐
+    -->
+	<update id="updateUser02ByPk" parameterType="com.hs.model.User">
+		update oa_user
+		<trim prefix="set" suffixOverrides=",">
+			<if test="user_name !=null and user_name != ''">
+				user_name = #{user_name},
+			</if>
+			<if test="sex !=null and sex != ''">
+				sex = #{sex},
+			</if>
+			<if test="money != null"> <!--不是字符串就不要判断是否为空 ='' -->
+				money = #{money},
+			</if>
+		</trim>
+		where user_id = #{user_id}
+	</update>
+
+	<!--利用choose标签，类似switch-->
+	<select id="getSkillByChoose" parameterType="map" resultMap="BaseResultMap">
+		select <include refid="oa_user_columns"/>
+		from oa_user
+		where
+		<choose><!--注意单双引号,when里test='' -->
+			<when test='sex!=null and sex=="男"'>
+				money > 700
+			</when>
+			<!--<when test='sex!=null and sex=="女"'>
+				money &lt;= 700   &lt;!&ndash;见xml转义字符 小于号(因为小于号<是标签的开头)的解决问题，或者这样写 &ndash;&gt;
+			</when>-->
+			<when test='sex!=null and sex="女"'>
+				<![CDATA[
+				money <= 700
+				]]>
+			</when>  	<!--里面不能包含标签，把<，不当做标签的开头 -->
+			<otherwise>   <!--switch中的default-->
+				1=1
+			</otherwise>
+		</choose>
+	</select>
+	<!--后面两个属性，前者可以不用写，后者是使用该属性，接收这个新添加的数据的主键-->
+	<insert id="addSkill01" parameterType="com.hs.model.User" useGeneratedKeys="true" keyProperty="user_id">
+		insert into oa_user
+		<trim prefix="(" suffix=")" suffixOverrides=",">
+			<if test="user_name !=null and user_name!=''">
+				user_name,
+			</if>
+			<if test="sex !=null and sex!=''">
+				sex,
+			</if>
+			<if test="money !=null">
+				money,
+			</if>
+			<if test="birthday !=null">
+				birthday,
+			</if>
+		</trim>
+		<trim prefix="values(" suffix=")" suffixOverrides=",">
+			<if test="user_name !=null and user_name!=''">
+				#{user_name},
+			</if>
+			<if test="sex !=null and sex!=''">
+				#{sex},
+			</if>
+			<if test="money !=null">
+				#{money},
+			</if>
+			<if test="birthday !=null">
+				#{birthday},
+			</if>
+		</trim>
+	</insert>
+	
+	<!--数组删除，如果数组的话，请不要去设置parameterType,让其自动识别  -->
+	<delete id="deleteSkillByArray" >
+		delete from oa_user where user_id in
+		<!--对数组进行遍历，
+		如果只传了一个数组或者一个集合  collection="array 或者 list
+		如果传的是一个Map里装了list 就写map的key，如果是对象里setList，就写对象的list属性,这个属性就对应一个集合
+		item相当于，他的遍历的一个值，open="开始加入" close="最后加入" separator="以什么间隔"-->
+		<foreach collection="array" item="id" open="(" close=")" separator=",">
+			#{id}
+		</foreach>
+	</delete>
+	<!--List集合删除 -->
+	<delete id="deleteSkillByList" parameterType="list">
+		delete from oa_user where user_id in
+		<foreach collection="list" item="id" open="(" close=")" separator=",">
+			#{id}
+		</foreach>
+	</delete>
+	<delete id="deleteSkillByMap" parameterType="map">
+		delete from oa_user where user_id in
+		<foreach collection="id_array" item="id" open="(" close=")" separator=",">  <!-- 等于遍历，id_array对应一个list，item就是这个list里的值  -->
+			#{id}
+		</foreach>
+	</delete>
+	
+	<!--批量添加-->
+	<insert id="addSkillByAll" parameterType="list">
+		insert into oa_user(user_name,sex,money)
+		values
+		<foreach collection="list" item="user" separator=",">
+			(#{user.user_name},#{user.sex},#{user.money})
+		</foreach>
+	</insert>
+</mapper>

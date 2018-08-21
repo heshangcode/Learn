@@ -1,0 +1,63 @@
+<?xml version="1.0" encoding="UTF-8"?>
+<!DOCTYPE mapper
+		PUBLIC "-//mybatis.org//DTD Mapper 3.0//EN"
+		"http://mybatis.org/dtd/mybatis-3-mapper.dtd">
+<!--namespace=命名空间，唯一不重复-->
+<mapper namespace="com.hs.dao.RoleDao"><!--命名空间规则
+传统模式：（持久化类（实体化Bean）的类名全路径com.hs.Skill）
+接口代理模式：接口的全路径r-->
+	<resultMap type="Role" id="BaseResultMapper">
+		<id column="role_id" property="role_id"/>
+		<result column="role_name" property="role_name"/>
+		<result column="role_key" property="role_key"/>
+		<result column="status" property="status"/>
+	</resultMap>
+	<sql id="sys_role_columns">
+		role_id,role_name,role_key,status
+	</sql>
+	<sql id="sys_role_columns_alias">
+		${alias}.role_id,${alias}.role_name,${alias}.role_key,${alias}.status
+	</sql>
+
+	<resultMap id="SimpleResultMapper" type="Role" extends="BaseResultMapper">
+		<!--配置集合List<User>,javaType一般可以不写-->
+		<!--在结果集中找到role_id这个字段，然后传给命名空间com.hs.dao.UserDao下id为getUserByFk的语句，
+		返回的结果集字段为userList，类型为java.util.List，里面装的类型是com.he.model.User这个类型
+		-->
+		<collection property="userList"
+		            javaType="java.util.List"
+		            ofType="User"
+		            column="role_id"
+		            select="com.hs.dao.UserDao.getUserByFk"/>
+	</resultMap>
+	<select id="getRoleByPk" parameterType="_int" resultMap="SimpleResultMapper">
+		select
+		<include refid="sys_role_columns"/>
+		from sys_role
+		where role_id = #{role_id}
+	</select>
+
+
+	<resultMap id="JoinResultMapper" type="Role" extends="BaseResultMapper">
+		<!--配置集合，查询出来的User里的结果集找com.hs.dao.UserDao.BaseResultMapper处理-->
+		<collection property="userList" javaType="list" ofType="com.hs.model.User"
+		            resultMap="com.hs.dao.UserDao.BaseResultMapper"/>
+		<!--<id/>
+		<result/>-->
+	</resultMap>
+	<select id="getRoleByLeftJoin" parameterType="_int" resultMap="JoinResultMapper">
+		SELECT
+		<include refid="com.hs.dao.UserDao.sys_user_colums_alias">
+			<property name="alias" value="su"/>
+		</include>
+		,
+		<include refid="sys_role_columns_alias">
+			<property name="alias" value="sr"/>
+		</include>
+		FROM
+		sys_role sr
+		LEFT JOIN sys_user su ON sr.role_id = su.fk_role_id
+		WHERE
+		sr.role_id =#{role_id}
+	</select>
+</mapper>

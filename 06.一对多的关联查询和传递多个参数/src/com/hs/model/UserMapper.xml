@@ -1,0 +1,46 @@
+<?xml version="1.0" encoding="UTF-8"?>
+<!DOCTYPE mapper
+		PUBLIC "-//mybatis.org//DTD Mapper 3.0//EN"
+		"http://mybatis.org/dtd/mybatis-3-mapper.dtd">
+<!--namespace=命名空间，唯一不重复-->
+<mapper namespace="com.hs.dao.UserDao"><!--命名空间规则
+传统模式：（持久化类（实体化Bean）的类名全路径com.hs.Skill）
+接口代理模式：接口的全路径r-->
+	<!--type直接用的别名方式，在核心配置文件里设置了的-->
+	<resultMap id="BaseResultMapper" type="User">
+		<id column="user_id" property="user_id" />
+		<result column="account" property="account" />
+		<result column="passwrod" property="pasword" />
+		<result column="user_name" property="user_name" />
+		<result column="status" property="status" />
+		<result column="login_time" property="login_time" />
+		<result column="ip" property="ip" />
+		<result column="fk_role_id" property="fk_role_id" />
+	</resultMap>
+	<resultMap id="SimpleResultMapper" type="User" extends="BaseResultMapper"> <!-- extends继承了BaseResultMapper，同java继承一样 -->
+		<!--关联对象-->
+		<!--在结果集中找到fk_role_id字段，然后再传值给命名空间com.hs.dao.RoleDao下的getRoleByPk语句进行查询(找到要执行的SQL语句)，最后返回role，它的类型是com.hs.model.Role-->
+		<association property="role" javaType="Role" column="fk_role_id" select="com.hs.dao.RoleDao.getRoleByPk"/>
+	</resultMap>
+	<sql id="sys_user_colums">
+		user_id,account,password,user_name,status,login_time,ip,fk_role_id
+	</sql>
+	<sql id="sys_user_colums_alias">
+		${alias}.user_id,${alias}.account,${alias}.password,${alias}.user_name,${alias}.status,${alias}.login_time,${alias}.ip,${alias}.fk_role_id
+	</sql>
+
+	<select id="getUserByFk" parameterType="_int" resultMap="BaseResultMapper">
+		select <include refid="sys_user_colums"/>
+		from sys_user
+		where fk_role_id = #{role_id}
+	</select>
+
+	<!--1.当你的形参传递>1个的时候，parameterType不写，让其自动处理
+		2.#{值}，默认为arg0，arg1.....或param1，param2，，，
+		若在dao注解了@xxx(相当于指明了key值)，即也可以写xxx，默认的也可以写，相当于3个值-->
+	<select id="getUser" resultMap="BaseResultMapper">
+		select <include refid="sys_user_colums"/>
+		from sys_user
+		where account=#{account} and password=#{password}
+	</select>
+</mapper>

@@ -1,0 +1,48 @@
+<?xml version="1.0" encoding="UTF-8"?>
+<!DOCTYPE mapper
+		PUBLIC "-//mybatis.org//DTD Mapper 3.0//EN"
+		"http://mybatis.org/dtd/mybatis-3-mapper.dtd">
+<!--namespace=命名空间，唯一不重复-->
+<mapper namespace="com.hs.model.Skill"> <!--命名空间规则
+传统模式：（持久化类（实体化Bean）的类名全路径com.hs.Skill）
+接口代理模式：接口的全路径com.hs.mapper.xxMapper-->
+
+	<!--查询的字段，并没有优化，下个专题进行优化-->
+	<!--当你传递的是“一个”简单的数据类型的形参的时候，那么你的${任意名字},sql语句后面不要加   ;   -->
+	<select id="getMap01ByPk" parameterType="_int" resultType="map">
+		select skill_id,skill_name,num from skill where skill_id = #{sadsa}
+	</select>
+	<select id="getMap02ByPk" parameterType="_int" resultType="map">
+		select skill_id skillid,skill_name skill_name ,num number from skill where skill_id = #{skill_id}
+	</select>
+	<!--只能对结果集的结果操作进行处理，autoMapping="true"默认映射，默认为true，重写字段名会覆盖默认的，若false就不会映射默认字段（只映射出自己写的别名）-->
+	<resultMap id="MapResultMapper" type="map" autoMapping="true">
+		<result column="skill_id" property="id"/>   <!--column为结果集里的字段名，property为自己要映射(变成)的字段名-->
+		<result column="skill_name" property="name"/>
+		<result column="num" property="number"/>
+	</resultMap>
+	<select id="getMap03ByPk" parameterType="_int" resultMap="MapResultMapper">
+		select skill_id,skill_name ,num from skill where skill_id = #{skill_id}
+	</select>
+	<!--1.别名方法，属性和字段名一致，可以完成自动映射-->
+	<select id="getSkill01ByPk" parameterType="int" resultType="com.hs.model.Skill">
+		select skill_id skillid,skill_name skillname,num from skill where skill_id = #{adsa}
+	</select>
+	<!--2.resultMap标签找对应id的标签，利用结果集，进行转换，jdbcType和javaType可以不用写，名字见jdbc类型和Java 类型对应http://www.mybatis.org/mybatis-3/zh/configuration.html#typeAliases-->
+	<resultMap id="SkillResultMapper" type="com.hs.model.Skill">
+		<id column="skill_id" jdbcType="INTEGER" property="skillid" javaType="java.lang.Integer"/>
+		<result column="skill_name" jdbcType="VARCHAR" property="skillname" javaType="java.lang.String"/>
+		<result column="num" property="num"/>
+	</resultMap>
+	<select id="getSkill02ByPk" parameterType="int" resultMap="SkillResultMapper">
+		select skill_id,skill_name,num from skill where skill_id = #{adsa}
+	</select>
+
+	<!--一条一条的为map-->
+	<select id="getSkillList01ByAll" resultType="map">
+		select skill_id,skill_name,num from skill
+	</select>
+	<select id="getSkillList02ByAll" resultMap="SkillResultMapper">
+		select skill_id,skill_name,num from skill
+	</select>
+</mapper>

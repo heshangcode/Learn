@@ -1,0 +1,22 @@
+<?xml version="1.0" encoding="UTF-8"?>
+<beans xmlns="http://www.springframework.org/schema/beans"
+       xmlns:xsi="http://www.w3.org/2001/XMLSchema-instance"
+       xmlns:mvc="http://www.springframework.org/schema/mvc"
+       xmlns:context="http://www.springframework.org/schema/context"
+       xsi:schemaLocation="http://www.springframework.org/schema/mvc http://www.springframework.org/schema/mvc/spring-mvc-4.3.xsd
+		http://www.springframework.org/schema/beans http://www.springframework.org/schema/beans/spring-beans-4.3.xsd
+		http://www.springframework.org/schema/context http://www.springframework.org/schema/context/spring-context-4.3.xsd">
+
+	<!--1.启动SpringMVC注解-->
+	<mvc:annotation-driven/>
+	<!--2.扫描注解-->
+	<context:component-scan base-package="com.hs.**.web"/>
+	<!--3.jsp的请求转发的视图解析器-->
+
+	<!--4.静态资源(图片、js、css之类的)(让这些资源不经过DispatcherServlet处理)的
+	处理方式一  推荐方式-->
+	<!--<mvc:default-servlet-handler default-servlet-name="default"/>-->
+	<!--4.静态资源的处理方式二(可以写多个，从上而下找，找到就不再找) 映射方式
+	(mapping中/image/后面的数据，默认会追加到WEB-INF/后面，去/WEB-INF/下面去找资源加载出来)-->
+	<mvc:resources mapping="/image/**" location="/WEB-INF/"/>
+</beans>

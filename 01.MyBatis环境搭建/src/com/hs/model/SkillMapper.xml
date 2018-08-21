@@ -1,0 +1,16 @@
+<?xml version="1.0" encoding="UTF-8"?>
+<!DOCTYPE mapper
+		PUBLIC "-//mybatis.org//DTD Mapper 3.0//EN"
+		"http://mybatis.org/dtd/mybatis-3-mapper.dtd">
+<!--namespace=命名空间，唯一不重复-->
+<mapper namespace="com.hs.model.Skill"> <!--mybatis分为传统模式和接口代理模式，
+传统模式：命名空间（持久化类（实体化Bean）的类名全路径com.hs.Skill）
+接口代理模式：接口的全路径com.hs.mapper.xxMapper-->
+<!--parameterType：(可以不用写，但是为了增加可读性)接收的值类型，有别名，见mybatis：http://www.mybatis.org/mybatis-3/zh/configuration.html 中别名和映射的类型
+	resultType：sql语句操作返回的类型，
+	resultMap：找对应的resultMap标签
+-->
+	<select id="getSkill01" parameterType="_int" resultType="com.hs.model.Skill">
+		select skill_id,skill_name,num from skill where skill_id = #{adsa}
+	</select>
+</mapper>

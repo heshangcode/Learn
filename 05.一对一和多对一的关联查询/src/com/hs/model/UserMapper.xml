@@ -1,0 +1,68 @@
+<?xml version="1.0" encoding="UTF-8"?>
+<!DOCTYPE mapper
+		PUBLIC "-//mybatis.org//DTD Mapper 3.0//EN"
+		"http://mybatis.org/dtd/mybatis-3-mapper.dtd">
+<!--namespace=命名空间，唯一不重复-->
+<mapper namespace="com.hs.dao.UserDao"><!--命名空间规则
+传统模式：（持久化类（实体化Bean）的类名全路径com.hs.Skill）
+接口代理模式：接口的全路径r-->
+	<!--type直接用的类名别名方式，在核心配置文件里设置了的-->
+	<resultMap id="BaseResultMapper" type="User">
+		<id column="user_id" property="user_id" />
+		<result column="account" property="account" />
+		<result column="passwrod" property="pasword" />
+		<result column="user_name" property="user_name" />
+		<result column="status" property="status" />
+		<result column="login_time" property="login_time" />
+		<result column="ip" property="ip" />
+		<result column="fk_role_id" property="fk_role_id" />
+	</resultMap>
+	<resultMap id="SimpleResultMapper" type="User" extends="BaseResultMapper"> <!-- extends继承了BaseResultMapper，同java继承一样 -->
+		<!--配置关联对象-->
+		<!--在结果集中找到fk_role_id字段，然后再传值给命名空间com.hs.dao.RoleDao下的getRoleByPk语句进行查询(找到要执行的SQL语句)，最后返回role(对象的属性)，它的类型是com.hs.model.Role-->
+		<association property="role" javaType="Role" column="fk_role_id" select="com.hs.dao.RoleDao.getRoleByPk"/>
+		<collection property=""
+	</resultMap>
+	<sql id="sys_user_colums">
+		user_id,account,password,user_name,status,login_time,ip,fk_role_id
+	</sql>
+	<sql id="sys_user_colums_alias">
+		${alias}.user_id,${alias}.account,${alias}.password,${alias}.user_name,${alias}.status,${alias}.login_time,${alias}.ip,${alias}.fk_role_id
+	</sql>
+
+	<select id="getUserByPk01" parameterType="_int" resultMap="BaseResultMapper">
+		select <include refid="sys_user_colums"/>
+		from sys_user
+		where user_id = #{user_id}
+	</select>
+	<select id="getUserByPk02" parameterType="_int" resultMap="SimpleResultMapper">
+		select <include refid="sys_user_colums"/>
+		from sys_user
+		where user_id = #{user_id}
+	</select>
+	<resultMap id="JoinResultMapper" type="User" extends="BaseResultMapper">
+		<!--关联对象-->
+		<!--resultMap引用别人的结果集(命名空间+"."+id)，或者自己在下面写结果集处理-->
+		<association property="role" javaType="Role" resultMap="com.hs.dao.RoleDao.BaseResultMapper">
+			<!-- <id column="role_id" property="role_id"/>
+			<result column="role_name" property="role_name"/>
+			<result column="role_key" property="role_key"/>
+			<result column="status" property="status"/> -->
+		</association>
+	</resultMap>
+	<select id="getUserByLeftJoin" parameterType="_int" resultMap="JoinResultMapper">
+		select
+			<!-- 调用别名式的SQL代码，给alias赋值为u -->
+			<include refid="sys_user_colums_alias">
+				<property name="alias" value="u"/>
+			</include>
+			,
+			<include refid="com.hs.dao.RoleDao.sys_role_columns_alias">
+				<property name="alias" value="r"/>
+			</include>
+		from sys_user u
+		left join sys_role r on u.fk_role_id = r.role_id
+		where
+			u.user_id = #{user_id}
+	</select>
+</mapper>

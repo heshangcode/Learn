@@ -1,0 +1,92 @@
+<?xml version="1.0" encoding="UTF-8"?>
+<beans xmlns="http://www.springframework.org/schema/beans"
+       xmlns:xsi="http://www.w3.org/2001/XMLSchema-instance"
+       xmlns:mvc="http://www.springframework.org/schema/mvc"
+       xmlns:context="http://www.springframework.org/schema/context"
+       xsi:schemaLocation="http://www.springframework.org/schema/mvc http://www.springframework.org/schema/mvc/spring-mvc-4.3.xsd
+		http://www.springframework.org/schema/beans http://www.springframework.org/schema/beans/spring-beans-4.3.xsd
+		http://www.springframework.org/schema/context http://www.springframework.org/schema/context/spring-context-4.3.xsd">
+
+	<!--1.启动SpringMVC注解-->
+	<mvc:annotation-driven>
+
+		<mvc:message-converters register-defaults="true">
+			<!--解决下载的时候转换问题-->
+			<bean class="org.springframework.http.converter.ByteArrayHttpMessageConverter"/>
+
+			<!--解决@ResponseBody在IE浏览器的BUG问题-->
+			<bean class="org.springframework.http.converter.json.MappingJackson2HttpMessageConverter">
+				<property name="prettyPrint" value="true"/>
+				<property name="supportedMediaTypes">
+					<list>
+						<value>text/html;charset=UTF-8</value>
+						<value>text/plan;charset=UTF-8</value>
+						<value>application/json;charset=UTF-8</value>
+					</list>
+				</property>
+
+				<!--解决Jackson转换的日期问题，一劳永逸的办法，全局设置，但是和持久化类中的注解比，谁近更选择谁-->
+				<property name="objectMapper">  <!--property：xxx属性-->
+					<bean class="com.fasterxml.jackson.databind.ObjectMapper">  <!--bean：xx实例化了-->
+						<property name="dateFormat">
+							<bean class="java.text.SimpleDateFormat">
+								<!--yyyy-MM-dd HH:mm:ss只能这么写，如果不显示小时，就需要在持久化类中注解设置-->
+								<constructor-arg type="java.lang.String"
+								                 value="yyyy-MM-dd HH:mm:ss"/>  <!--constructor-arg：xx构造函数-->
+							</bean>
+						</property>
+					</bean>
+				</property>
+
+			</bean>
+		</mvc:message-converters>
+
+	</mvc:annotation-driven>
+	<!--2.扫描注解-->
+	<context:component-scan base-package="com.hs.**.web"/>
+
+	<!--3.jsp的请求转发的视图解析器-->
+	<bean class="org.springframework.web.servlet.view.InternalResourceViewResolver">
+		<property name="prefix" value="/WEB-INF/"/>
+		<property name="suffix" value=".jsp"/>
+		<property name="viewClass" value="org.springframework.web.servlet.view.JstlView"/>
+	</bean>
+
+	<!--4.静态资源(图片、js、css之类的)(让这些资源不经过servlet处理)的
+	处理方式一  推荐方式-->
+	<mvc:default-servlet-handler default-servlet-name="default"/>
+	<!--4.静态资源的处理方式二(可以写多个，从上而下找，找到就不再找) 映射方式(mapping中/image/后面的输进去，默认加到/WEB-INF/后面),-->
+	<!--<mvc:resources mapping="/image/**" location="/WEB-INF/"/>-->
+
+	<!--5.使用上传的解析器，如果发现是上传操作，会自动使用该解析器帮我们完成相应的操作-->
+	<!--该ID为固定值-->
+	<bean id="multipartResolver" class="org.springframework.web.multipart.commons.CommonsMultipartResolver">
+		<!--设置上传文件编码-->
+		<!--简写方式 标签p c注入
+		p:defaultEncoding = "UTF-8"-->
+		<property name="defaultEncoding" value="UTF-8"/>
+		<!--设置文件上传最大值024*200即200K-->
+		<property name="maxUploadSize" value="20971520"/>
+		<!--缓存，读取文件到内存中最大的字节数，可以不设置-->
+		<property name="maxInMemorySize" value="2048"/>
+		<!--延时提高上传效率，一个类似懒加载的属性-->
+		<property name="resolveLazily" value="true"/>
+	</bean>
+
+	<!--6.统一的简单异常处理，监听所有的页面异常-->
+	<bean id="simpleMappingExceptionResolver" class="org.springframework.web.servlet.handler.SimpleMappingExceptionResolver">
+		<!--出现异常，默认跳转的页面-->
+		<property name="defaultErrorView" value="jsp/error"/>
+		<!--类似于这个mav.addObject("ex", ex);-->
+		<property name="exceptionAttribute" value="ex"/>
+		<!--异常映射，若出现下列异常，就跳转相应的页面，不跳默认的-->
+		<property name="exceptionMappings">
+			<props>
+				<prop key="ArithmeticException">jsp/error</prop>
+				<prop key="ArrayIndexOutOfBoundsException">jsp/error</prop>
+				<prop key="RuntimeException">jsp/error</prop>
+				<prop key="Exception">jsp/error</prop>
+			</props>
+		</property>
+	</bean>
+</beans>

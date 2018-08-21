@@ -1,0 +1,20 @@
+<?xml version="1.0" encoding="UTF-8"?>
+<beans xmlns="http://www.springframework.org/schema/beans"
+       xmlns:xsi="http://www.w3.org/2001/XMLSchema-instance"
+       xmlns:mvc="http://www.springframework.org/schema/mvc"
+       xmlns:context="http://www.springframework.org/schema/context"
+       xsi:schemaLocation="http://www.springframework.org/schema/mvc http://www.springframework.org/schema/mvc/spring-mvc-4.3.xsd
+		http://www.springframework.org/schema/beans http://www.springframework.org/schema/beans/spring-beans-4.3.xsd
+		http://www.springframework.org/schema/context http://www.springframework.org/schema/context/spring-context-4.3.xsd">
+
+
+	<!--1.启动SpringMvc注解-->
+	<mvc:annotation-driven/>
+	<!--2.扫描controller-->
+	<!--可以使用通配符 *
+	    com.*.web 可以识别：com.hs.web   com.sd.web   com.sdsa.web 但是不能识别com.hs.sd.web
+		访问任意一层
+		com.**.web  可以识别com.web  com.hs.web com.sad.asd.asd.web
+	  -->
+	<context:component-scan base-package="com.hs.**.web"/>
+</beans>

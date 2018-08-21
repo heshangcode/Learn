@@ -1,0 +1,40 @@
+<?xml version="1.0" encoding="UTF-8" ?>
+<!DOCTYPE configuration
+		PUBLIC "-//mybatis.org//DTD Config 3.0//EN"
+		"http://mybatis.org/dtd/mybatis-3-config.dtd">
+<configuration>
+	<!--加载属性文件 -->
+	<properties resource="jdbc.properties"/>
+	<!--自定义设置类型的别名，也就是resultMap里的type，避免包名已修改，在映射文件里修改多处地方-->
+	<typeAliases>
+		<!-- 方式一、com.hs.model.Skill这个类设置了别名hs，之后要用这个的话，直接写hs -->
+		<!--<typeAlias type="com.hs.model.Skill" alias="hs"/> -->
+		<!-- 方式二、com.hs.model这个包下的类，要用的时候直接写类名，比如用com.hs.model.Skill，直接写Skill -->
+		<package name="com.hs.model"/>
+	</typeAliases>
+	<!--配置数据库的环境-->
+	<environments default="development">
+		<environment id="development">
+			<!--事务管理器:保证数据的完整性和一致性   关键信息  -->
+			<!--框架：默认情况下CUD操作需要  手动提交事务
+			（如同在Navicat中表中输入了数据，没有点那个小√，就是没有提交事务，
+			但是输入insert语句，就自动提交事务了）  -->
+			<transactionManager type="JDBC" />
+			<!--使用的是连接池：百度java如何实行连接池的原理？  -->
+			<dataSource type="POOLED">
+				<property name="driver" value="${jdbc.mysql.driver}" />  <!--获取值，${属性文件里的变量名}，也可以直接写值-->
+				<property name="url" value="${jdbc.mysql.url}" />  <!--获取值，${属性文件里的变量名}，也可以直接写值-->
+				<property name="username" value="${jdbc.mysql.username}" /> <!--获取值，${属性文件里的变量名}，也可以直接写值-->
+				<property name="password" value="${jdbc.mysql.password}" /> <!--获取值，${属性文件里的变量名}，也可以直接写值-->
+			</dataSource>
+		</environment>
+	</environments>
+
+	<!--加载映射文件 ，也就是含sql语句的文件-->
+	<mappers>
+		 <!--告知映射文件方式1，一个一个的配置-->
+        <mapper resource="com/hs/model/SkillMapper.xml"/>
+		<!-- 告知映射文件方式2，自动扫描包内的Mapper接口与配置文件 -->
+		<!--<package name="com.hs.model"/>-->
+	</mappers>
+</configuration>
