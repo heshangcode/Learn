@@ -1,0 +1,73 @@
+<?xml version="1.0" encoding="UTF-8"?>
+<beans xmlns="http://www.springframework.org/schema/beans"
+       xmlns:xsi="http://www.w3.org/2001/XMLSchema-instance"
+       xmlns:mvc="http://www.springframework.org/schema/mvc"
+       xmlns:context="http://www.springframework.org/schema/context"
+       xmlns:p="http://www.springframework.org/schema/p"
+       xmlns:util="http://www.springframework.org/schema/util"
+       xmlns:aop="http://www.springframework.org/schema/aop"
+       xsi:schemaLocation="http://www.springframework.org/schema/mvc http://www.springframework.org/schema/mvc/spring-mvc-4.3.xsd
+		http://www.springframework.org/schema/beans http://www.springframework.org/schema/beans/spring-beans-4.3.xsd
+		http://www.springframework.org/schema/context http://www.springframework.org/schema/context/spring-context-4.3.xsd
+		http://www.springframework.org/schema/aop http://www.springframework.org/schema/aop/spring-aop-4.3.xsd
+		http://www.springframework.org/schema/util http://www.springframework.org/schema/util/spring-util-4.3.xsd">
+
+	<!--1.启动Spring注解-->
+	<context:annotation-config/>
+	<!--2.扫描注解-->
+	<context:component-scan base-package="com.hs"/>
+	<!--3.读取属性文件！！${}获取值-->
+	<context:property-placeholder location="classpath:jdbc.properties"/>
+
+
+	<!--Setter注入方式，必须要提供setter方法，并且有三种方式:标准方式，缩写，p方式(也有p方式引用)-->
+	<bean id="user01" class="com.hs.model.User" p:user_name="八戒" p:hobbySet-ref="hobbySetRef" p:hsTest-ref="testImpl">
+		<!--这个name的值不是属性值，是setter方法后面的值首字母小写-->
+		<property name="user_id">
+			<value>100</value>
+		</property>
+		<!--<property name="user_name" value="悟空"/>-->
+		<property name="hobbyArray">
+			<!--这里面的标签，赋值跟构造函数初始化一样的-->
+			<array>
+				<value>篮球</value>
+				<value>足球</value>
+				<value>看书</value>
+				<value>音乐</value>
+			</array>
+		</property>
+		<!--引用util:list-->
+		<property name="hobbyList" ref="hobbyListRef"/>
+		<property name="map" ref="mapRef"/>
+		<property name="properties">
+			<props>
+				<prop key="class">${jdbc.mysql.driver}</prop>
+			</props>
+		</property>
+		<property name="hsRole" ref="role"/>
+	</bean>
+	<bean id="role" class="com.hs.model.Role">
+		<property name="role_name" value="超级管理员"/>
+	</bean>
+	<bean id="testImpl" class="com.hs.model.ITestImpl"/>
+	<!--这些util，不会咋用可以百度，util:xxx,list-class可以不用写-->
+	<util:list id="hobbyListRef" list-class="java.util.ArrayList">
+		<value>篮球</value>
+		<value>足球</value>
+		<value>看书</value>
+		<value>音乐</value>
+	</util:list>
+	<util:set id="hobbySetRef">
+		<value>篮球</value>
+		<value>足球</value>
+		<value>看书</value>
+		<value>音乐</value>
+	</util:set>
+	<util:map id="mapRef">
+		<entry key="class" value="计算机"/>
+		<entry key="name">
+			<value>和尚</value>
+		</entry>
+	</util:map>
+
+</beans>

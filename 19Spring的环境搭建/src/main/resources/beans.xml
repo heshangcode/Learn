@@ -1,0 +1,17 @@
+<?xml version="1.0" encoding="UTF-8"?>
+<beans xmlns="http://www.springframework.org/schema/beans"
+       xmlns:xsi="http://www.w3.org/2001/XMLSchema-instance"
+       xsi:schemaLocation="http://www.springframework.org/schema/beans http://www.springframework.org/schema/beans/spring-beans.xsd">
+	<!--beans.xml就是spring框架提供的容器-->
+	<!--管理Bean Bean就是对象 必须通过类 类必须可能进行实例化-->
+	<!--下面那个代码相当于
+	java代码
+	HashMap map1 = new HashMap();   HashMapjava内置的类
+	-->
+	<!--<bean id="map1" class="java.util.HashMap"></bean>-->
+
+	<!--static User u1 = new User();只有一个new对象，Bean的范围说明——scope="singleton"默认为单例模式,scope可以不用写-->
+	<bean id="u1" class="com.hs.model.User" scope="singleton"/>
+	<!--User u2 = new User(); prototype多例模式，需要对象就new一个，每个不同-->
+	<bean id="u2" class="com.hs.model.User" scope="prototype"/>
+</beans>
