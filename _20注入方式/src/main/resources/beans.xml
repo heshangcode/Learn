@@ -1,0 +1,112 @@
+<?xml version="1.0" encoding="UTF-8"?>
+<beans xmlns="http://www.springframework.org/schema/beans"
+       xmlns:xsi="http://www.w3.org/2001/XMLSchema-instance"
+       xmlns:mvc="http://www.springframework.org/schema/mvc"
+       xmlns:context="http://www.springframework.org/schema/context"
+       xsi:schemaLocation="http://www.springframework.org/schema/mvc http://www.springframework.org/schema/mvc/spring-mvc-4.3.xsd
+		http://www.springframework.org/schema/beans http://www.springframework.org/schema/beans/spring-beans-4.3.xsd
+		http://www.springframework.org/schema/context http://www.springframework.org/schema/context/spring-context-4.3.xsd">
+
+	<!--1.启动Spring注解-->
+	<context:annotation-config/>
+	<!--2.扫描注解-->
+	<context:component-scan base-package="com.hs"/>
+	<!--User 类通过构造函数实例化-->
+	<bean id="user01" class="com.hs.model.User">
+		<!--index=""(可以省略)是设置参数的索引(0开始)，是第几个 type可以不用写-->
+		<!--翻译constructor：构造函数-->
+		<constructor-arg name="user_id" value="100" index="0" type="java.lang.Integer"/>
+		<constructor-arg name="user_name" index="1">
+			<value>悟空</value>
+			<!--设置空是<null/>-->
+		</constructor-arg>
+	</bean>
+	<!--构造函数实例化数组，list，set-->
+	<bean id="user02" class="com.hs.model.User">
+		<constructor-arg name="user_name" value="八戒" index="0"/>
+		<constructor-arg name="user_id" value="200" index="1"/>
+		<constructor-arg name="hobbyArray" index="2">
+			<array>
+				<value>篮球</value>
+				<value>足球</value>
+				<value>看书</value>
+				<value>音乐</value>
+			</array>
+		</constructor-arg>
+		<constructor-arg name="hobbyList">
+			<list>
+				<value>篮球</value>
+				<value>足球</value>
+				<value>看书</value>
+				<value>音乐</value>
+			</list>
+		</constructor-arg>
+		<constructor-arg name="hobbySet">
+			<set>
+				<value>篮球</value>
+				<value>足球</value>
+				<value>看书</value>
+				<value>音乐</value>
+			</set>
+		</constructor-arg>
+	</bean>
+	<!--构造函数实例化Map，Properties-->
+	<bean id="user03" class="com.hs.model.User">
+		<constructor-arg name="map">
+			<map>
+				<entry key="hs">
+					<value>和尚</value>
+				</entry>
+				<!--缩写-->
+				<entry key="name" value="悟空"/>
+			</map>
+		</constructor-arg>
+		<constructor-arg name="properties">
+			<props>
+				<!--给Properties赋值-->
+				<prop key="age">100</prop>
+				<prop key="RuntimeExceiption">error</prop>
+			</props>
+		</constructor-arg>
+	</bean>
+
+	<!--构造函数初始化自定义类型-->
+	<bean id="user04" class="com.hs.model.User">
+		<constructor-arg name="hsRole">
+			<bean id="role1" class="com.hs.model.Role"/>
+		</constructor-arg>
+	</bean>
+
+	<!--构造函数实例化自定义类型-->
+	<bean id="user05" class="com.hs.model.User">
+		<constructor-arg name="hsRole">
+			<bean class="com.hs.model.Role">
+				<constructor-arg name="role_name" value="超级管理员"/>
+			</bean>
+		</constructor-arg>
+	</bean>
+
+	<!--构造函数实例化自定义类型——推荐引用方式-->
+	<bean id="user06" class="com.hs.model.User">
+		<!--<constructor-arg name="hsRole">
+			&lt;!&ndash;引用bean，下面简写&ndash;&gt;
+			<ref bean="role2"/>
+		</constructor-arg>-->
+		<constructor-arg name="hsRole" ref="role2"/>
+	</bean>
+	<bean id="role2" class="com.hs.model.Role">
+		<constructor-arg name="role_name" value="引用方式推荐"/>
+	</bean>
+
+	<!--实现接口回调，接口注入实现类-->
+	<!-- 这里通过bean.xml构造函数初始化
+	 1.ITestImpl testImpl = new ITestImpl();
+	 2.hsTest = testImpl = new ITestImpl()-->
+	<bean id="user07" class="com.hs.model.User">
+		<constructor-arg name="hsTest">
+			<ref bean="testImpl"/>
+		</constructor-arg>
+	</bean>
+	<!--ITestImpl testImpl = new ITestImpl();-->
+	<bean id="testImpl" class="com.hs.model.ITestImpl"/>
+</beans>
