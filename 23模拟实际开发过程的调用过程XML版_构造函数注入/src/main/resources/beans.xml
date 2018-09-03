@@ -1,0 +1,19 @@
+<?xml version="1.0" encoding="UTF-8"?>
+<beans xmlns="http://www.springframework.org/schema/beans"
+       xmlns:xsi="http://www.w3.org/2001/XMLSchema-instance"
+       xsi:schemaLocation="http://www.springframework.org/schema/beans http://www.springframework.org/schema/beans/spring-beans.xsd">
+
+	<!--实例化-->
+	<bean id="userDaoImpl" class="com.hs.dao.impl.UserDaoImpl">
+	</bean>
+	<!--通过构造函数实例化-->
+	<bean id="userServiceImpl" class="com.hs.service.impl.UserServiceImpl">
+		<constructor-arg name="userDao" ref="userDaoImpl"/>
+	</bean>
+	<bean id="userController" class="com.hs.web.UserController">
+		<constructor-arg name="userService">
+			<ref bean="userServiceImpl"/>
+		</constructor-arg>
+	</bean>
+
+</beans>

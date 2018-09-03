@@ -1,0 +1,64 @@
+<?xml version="1.0" encoding="UTF-8"?>
+<beans xmlns="http://www.springframework.org/schema/beans"
+       xmlns:xsi="http://www.w3.org/2001/XMLSchema-instance"
+       xmlns:mvc="http://www.springframework.org/schema/mvc"
+       xmlns:context="http://www.springframework.org/schema/context"
+       xmlns:p="http://www.springframework.org/schema/p"
+       xmlns:util="http://www.springframework.org/schema/util"
+       xmlns:aop="http://www.springframework.org/schema/aop" xmlns:tx="http://www.springframework.org/schema/tx"
+       xsi:schemaLocation="http://www.springframework.org/schema/mvc http://www.springframework.org/schema/mvc/spring-mvc-4.3.xsd
+		http://www.springframework.org/schema/beans http://www.springframework.org/schema/beans/spring-beans-4.3.xsd
+		http://www.springframework.org/schema/context http://www.springframework.org/schema/context/spring-context-4.3.xsd
+		http://www.springframework.org/schema/aop http://www.springframework.org/schema/aop/spring-aop-4.3.xsd
+		http://www.springframework.org/schema/util http://www.springframework.org/schema/util/spring-util-4.3.xsd http://www.springframework.org/schema/tx http://www.springframework.org/schema/tx/spring-tx.xsd">
+	<!--1.启动Spring注解-->
+	<context:annotation-config></context:annotation-config>
+	<!--2.扫描-->
+	<context:component-scan base-package="com.hs"/>
+	<!--3.配置数据源-->
+	<bean id="druidDataSource" class="com.alibaba.druid.pool.DruidDataSource" destroy-method="close">
+		<property name="driverClassName" value="com.mysql.jdbc.Driver"/>
+		<property name="url" value="jdbc:mysql://localhost:3306/cy42_tx"/>
+		<property name="username" value="root"/>
+		<property name="password" value="root"/>
+	</bean>
+	<!--4.配置工具类JdbcTemplate-->
+	<bean id="jdbcTemplate" class="org.springframework.jdbc.core.JdbcTemplate">
+		<property name="dataSource" ref="druidDataSource"/>
+	</bean>
+	<!--5.配置事务管理器-->
+	<bean id="transactionManager" class="org.springframework.jdbc.datasource.DataSourceTransactionManager">
+		<property name="dataSource" ref="druidDataSource"/>
+	</bean>
+
+	<!--6.告知哪些方法是需要被事务管理器进行管理的，
+		等价于注解版，在方法上面写@Transactional
+	-->
+	<tx:advice transaction-manager="transactionManager" id="serviceAdvice">
+		<tx:attributes>
+			<!--哪些方法，也可以设置属性，对应注解版的属性-->
+			<tx:method name="get*" read-only="true"/>
+			<tx:method name="load*" read-only="true"/>
+			<tx:method name="list*" read-only="true"/>
+			<tx:method name="find*" read-only="true"/>
+			<tx:method name="query*" read-only="true"/>
+			<tx:method name="sel*" read-only="true"/>
+			<tx:method name="check*" read-only="true"/>
+			<tx:method name="valid*" read-only="true"/>
+			<tx:method name="login*" read-only="true"/>
+			<!--这是方法都是查询的方法,设置为只读-->
+
+			<tx:method name="*" propagation="REQUIRED"/>
+		</tx:attributes>
+	</tx:advice>
+
+	<!--7.配置AOP和tx:advice配合使用，告知我哪个层次下的方法会被事务管理器进行管理-->
+	<aop:config proxy-target-class="true">
+		<aop:pointcut id="servicePointCut" expression="execution(* com.hs..service.*Service.*(..))"/>
+		<aop:advisor advice-ref="serviceAdvice" pointcut-ref="servicePointCut"/>
+	</aop:config>
+	<!--8.启动事务注解：告知该方法是事务方法(一个错，其他全部错)，而不是普通方法
+	 transaction-manager="transactionManager"可以省略
+	-->
+	<tx:annotation-driven transaction-manager="transactionManager" proxy-target-class="true"/>
+</beans>

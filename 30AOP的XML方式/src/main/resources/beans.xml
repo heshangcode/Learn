@@ -1,0 +1,44 @@
+<?xml version="1.0" encoding="UTF-8"?>
+<beans xmlns="http://www.springframework.org/schema/beans"
+       xmlns:xsi="http://www.w3.org/2001/XMLSchema-instance"
+       xmlns:mvc="http://www.springframework.org/schema/mvc"
+       xmlns:context="http://www.springframework.org/schema/context"
+       xmlns:p="http://www.springframework.org/schema/p"
+       xmlns:util="http://www.springframework.org/schema/util"
+       xmlns:aop="http://www.springframework.org/schema/aop"
+       xsi:schemaLocation="http://www.springframework.org/schema/mvc http://www.springframework.org/schema/mvc/spring-mvc-4.3.xsd
+		http://www.springframework.org/schema/beans http://www.springframework.org/schema/beans/spring-beans-4.3.xsd
+		http://www.springframework.org/schema/context http://www.springframework.org/schema/context/spring-context-4.3.xsd
+		http://www.springframework.org/schema/aop http://www.springframework.org/schema/aop/spring-aop-4.3.xsd
+		http://www.springframework.org/schema/util http://www.springframework.org/schema/util/spring-util-4.3.xsd">
+	<!--1.启动Spring注解-->
+	<context:annotation-config></context:annotation-config>
+	<!--2.扫描-->
+	<context:component-scan base-package="com.hs"/>
+	<!--Spring提供了多种AOP的实现方式，但是我们只用第三方的AOP标准-->
+	<!--3.启动AOP注解：false是使用默认的java代理，true是使用CGLIB代理-->
+	<aop:aspectj-autoproxy proxy-target-class="true"/>
+
+	<!--4.AOP的XML配置方式,false是使用默认的java代理，true是使用CGLIB代理-->
+	<!--实例化那个类，在切面引用的时候好用-->
+	<bean id="logger" class="com.hs.service.aspect.Logger"/>
+	<bean id="logger111" class="com.hs.service.aspect.Logger"/>
+	<aop:config proxy-target-class="true">
+		<!--定义切点，可以把切点放在外面作为公共的，注意pointcut aspect的顺序，对应注解版的@PointCut(value = "execution(* com.hs..service.*Service.*(..))")-->
+		<aop:pointcut id="servicePointCut" expression="execution(* com.hs..service.*Service.*(..))"/>
+
+		<!--定义切面，对应注解版的@Aspect,order,定义切面的执行顺序，不写默认为从上到下执行-->
+		<aop:aspect ref="logger111" order="2">
+			<!--定义切点，对应注解版的@PointCut(value = "execution(* com.hs..service.*Service.*(..))")-->
+			<!--<aop:pointcut id="servicePointCut" expression="execution(* com.hs..service.*Service.*(..))"/>-->
+			<aop:before method="test01" pointcut-ref="servicePointCut"/>
+		</aop:aspect>
+		<!--定义切面，对应注解版的@Aspect-->
+		<aop:aspect ref="logger" order="1">
+			<!--定义切点，对应注解版的@PointCut(value = "execution(* com.hs..service.*Service.*(..))")-->
+			<!--<aop:pointcut id="servicePointCut" expression="execution(* com.hs..service.*Service.*(..))"/>-->
+			<aop:before method="test05" pointcut-ref="servicePointCut"/>
+		</aop:aspect>
+	</aop:config>
+
+</beans>

@@ -36,7 +36,7 @@
 				<value>音乐</value>
 			</array>
 		</property>
-		<!--引用util:list-->
+		<!--引用 -->
 		<property name="hobbyList" ref="hobbyListRef"/>
 		<property name="map" ref="mapRef"/>
 		<property name="properties">
