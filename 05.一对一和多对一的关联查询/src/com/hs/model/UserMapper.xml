@@ -17,11 +17,11 @@
 		<result column="ip" property="ip" />
 		<result column="fk_role_id" property="fk_role_id" />
 	</resultMap>
+
 	<resultMap id="SimpleResultMapper" type="User" extends="BaseResultMapper"> <!-- extends继承了BaseResultMapper，同java继承一样 -->
 		<!--配置关联对象-->
 		<!--在结果集中找到fk_role_id字段，然后再传值给命名空间com.hs.dao.RoleDao下的getRoleByPk语句进行查询(找到要执行的SQL语句)，最后返回role(对象的属性)，它的类型是com.hs.model.Role-->
 		<association property="role" javaType="Role" column="fk_role_id" select="com.hs.dao.RoleDao.getRoleByPk"/>
-		<collection property=""
 	</resultMap>
 	<sql id="sys_user_colums">
 		user_id,account,password,user_name,status,login_time,ip,fk_role_id
